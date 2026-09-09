@@ -9,11 +9,12 @@ Bot Telegram untuk mengecek apakah nomor HP terdaftar di OVO atau belum.
 - ✅ Response cepat dengan caching
 - ✅ Fallback heuristic jika API tidak tersedia
 - ✅ User-friendly interface
+- ✅ Async support untuk performa maksimal
 
 ## Persyaratan 📋
 
-- Node.js v14 atau lebih tinggi
-- npm atau yarn
+- Python 3.8 atau lebih tinggi
+- pip atau conda
 - Telegram Bot Token (dari @BotFather)
 
 ## Instalasi 🚀
@@ -24,12 +25,23 @@ git clone https://github.com/Riski1610/ovo-checker-bot.git
 cd ovo-checker-bot
 ```
 
-### 2. Install Dependencies
+### 2. Buat Virtual Environment (Optional tapi Recommended)
 ```bash
-npm install
+python -m venv venv
+
+# Linux/Mac
+source venv/bin/activate
+
+# Windows
+venv\\Scripts\\activate
 ```
 
-### 3. Setup Environment Variables
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Setup Environment Variables
 ```bash
 cp .env.example .env
 ```
@@ -39,13 +51,9 @@ Edit file `.env` dan masukkan Telegram Bot Token Anda:
 TELEGRAM_TOKEN=your_token_here
 ```
 
-### 4. Jalankan Bot
+### 5. Jalankan Bot
 ```bash
-# Production
-npm start
-
-# Development (dengan auto-reload)
-npm run dev
+python src/main.py
 ```
 
 ## Penggunaan 📱
@@ -68,7 +76,7 @@ npm run dev
 
 📱 Nomor: 081234567890
 📊 Status: TERDAFTAR
-⏰ Waktu: 9/9/2026, 17:59:23
+⏰ Waktu: 09/09/2026, 17:59:23
 ```
 
 ## Struktur Project 📁
@@ -76,13 +84,14 @@ npm run dev
 ```
 ovo-checker-bot/
 ├── src/
-│   ├── index.js              # Main bot file
+│   ├── main.py                 # Main bot file
 │   └── services/
-│       └── ovoChecker.js     # OVO checker logic
-├── package.json              # Dependencies
-├── .env.example              # Environment template
-├── .gitignore                # Git ignore rules
-└── README.md                 # Dokumentasi
+│       ├── __init__.py
+│       └── ovo_checker.py      # OVO checker logic
+├── requirements.txt             # Dependencies
+├── .env.example                 # Environment template
+├── .gitignore                   # Git ignore rules
+└── README.md                    # Dokumentasi
 ```
 
 ## Cara Kerja 🔧
@@ -125,41 +134,47 @@ Return to User
 
 ## Konfigurasi 🛠️
 
-### Timeout
+### Timeout API
 Default timeout API call: **10 detik**
 
-Edit di `src/services/ovoChecker.js`:
-```javascript
-timeout: 10000 // milliseconds
+Edit di `src/services/ovo_checker.py`:
+```python
+timeout=aiohttp.ClientTimeout(total=10)
 ```
 
 ### Cache Expiry
-Default cache expiry: **1 jam (3600000 ms)**
+Default cache expiry: **1 jam (3600 detik)**
 
-Edit di `src/services/ovoChecker.js`:
-```javascript
-this.cacheExpiry = 3600000;
+Edit di `src/services/ovo_checker.py`:
+```python
+self.cache_expiry = 3600  # seconds
 ```
 
 ## Development Tips 💡
 
 ### Testing Bot Lokal
 ```bash
-npm run dev
+python src/main.py
 ```
 
 ### Debug Mode
-Uncomment logging di `src/services/ovoChecker.js`
+Edit logging level di `src/main.py`:
+```python
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.DEBUG  # Change from INFO to DEBUG
+)
+```
 
 ### Database Integration
 Untuk hasil yang lebih akurat, integrasikan dengan database nomor terdaftar OVO:
 
-```javascript
-// Contoh di ovoChecker.js
-async checkViaDatabase(phoneNumber) {
-  const result = await db.query('SELECT * FROM ovo_users WHERE phone = ?', [phoneNumber]);
-  return result.length > 0;
-}
+```python
+# Contoh di ovo_checker.py
+async def _check_via_database(self, phone_number: str) -> dict:
+    # Query database untuk cek nomor
+    # return hasil dari database
+    pass
 ```
 
 ## Troubleshooting 🐛
@@ -168,29 +183,32 @@ async checkViaDatabase(phoneNumber) {
 1. Cek token di `.env`
 2. Restart bot
 3. Cek internet connection
+4. Cek bahwa Telegram token valid di @BotFather
 
 ### API Error
-1. Check log messages
+1. Check log messages untuk error details
 2. OVO API mungkin sedang down
 3. Bot akan fallback ke heuristic
-
-### Cache Issue
-Clear cache manual:
-```javascript
-// Di terminal Node.js
-const ovoChecker = require('./src/services/ovoChecker');
-ovoChecker.clearCache();
-```
 
 ## Security ⚠️
 
 - ⚠️ Jangan share `.env` file Anda
 - ⚠️ Simpan token di environment variable
 - ⚠️ Validasi semua input user
+- ⚠️ Jangan commit `.env` ke repository
 
 ## Disclaimer ⚡
 
 Bot ini dibuat untuk keperluan edukasi dan verifikasi nomor OVO. Gunakan sesuai dengan ToS OVO dan peraturan yang berlaku.
+
+## Requirements 📦
+
+```
+python-telegram-bot==20.3
+requests==2.31.0
+python-dotenv==1.0.0
+aiohttp==3.9.0
+```
 
 ## License 📄
 

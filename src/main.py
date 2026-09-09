@@ -68,19 +68,15 @@ async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 def is_phone_number(text: str) -> bool:
     """Validate if text is a valid phone number."""
-    # Remove spaces
     text = text.replace(' ', '')
-    # Check if it matches phone number pattern
     phone_regex = r'^(\+62|62|0)[0-9]{9,12}$'
     return bool(re.match(phone_regex, text))
 
 
 def normalize_phone_number(phone: str) -> str:
     """Normalize phone number to standard format (08xxx)."""
-    # Remove spaces
     phone = phone.replace(' ', '')
     
-    # Convert to 0 prefix format
     if phone.startswith('+62'):
         return '0' + phone[3:]
     elif phone.startswith('62'):
@@ -93,7 +89,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     """Handle incoming messages (phone numbers)."""
     user_input = update.message.text.strip()
     
-    # Validate phone number format
     if not is_phone_number(user_input):
         await update.message.reply_text(
             "❌ Format nomor tidak valid. Silakan kirim nomor HP yang benar (contoh: 081234567890)"
@@ -101,22 +96,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
     
     try:
-        # Show typing indicator
         await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
         
-        # Normalize phone number
         phone_number = normalize_phone_number(user_input)
         
-        # Show loading message
         loading_msg = await update.message.reply_text("⏳ Sedang mengecek...")
         
-        # Check OVO registration status
         result = await ovo_checker.check_ovo_registration(phone_number)
         
-        # Delete loading message
         await loading_msg.delete()
         
-        # Send result
         if result['success']:
             status_emoji = "✅" if result['isRegistered'] else "❌"
             status_text = "TERDAFTAR" if result['isRegistered'] else "BELUM TERDAFTAR"
@@ -148,21 +137,16 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 def main() -> None:
     """Start the bot."""
-    # Create the Application
     application = Application.builder().token(TELEGRAM_TOKEN).build()
     
-    # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("about", about_command))
     
-    # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # log all errors
     application.add_error_handler(error_handler)
     
-    # Run the bot
     print("🤖 OVO Checker Bot is running...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
