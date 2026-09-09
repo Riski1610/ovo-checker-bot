@@ -1,0 +1,26 @@
+{
+  "name": "ovo-checker-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot untuk cek nomor terdaftar OVO",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "ovo",
+    "checker"
+  ],
+  "author": "Riski1610",
+  "license": "MIT",
+  "dependencies": {
+    "telegraf": "^4.14.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
